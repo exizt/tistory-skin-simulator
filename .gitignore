@@ -1,3 +1,23 @@
-.idea
+# General
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/*
+!.vscode/settings.json
+.idea/
+*.code-workspace
+
+# python cache
+__pycache__/
+
+# Python virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
 
 skins/*

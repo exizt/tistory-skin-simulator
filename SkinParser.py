@@ -90,10 +90,77 @@ def parse_index_article_rep(contents: str) -> str:
     return contents
 
 
+def parse_skin_var(contents: str) -> str:
+    # 먼저, var 의 dash 방지 (스킨에 따라서 그런 경우가 있길래...)
+    contents = re.sub(pattern=r'</?s_(if|not)_var_([^>]+)>', repl=lambda m: m.group().replace("-", "_"),
+                      string=contents, flags=re.MULTILINE)
+    contents = re.sub(pattern=r'\[##_var_([^\]]+)_##\]', repl=lambda m: m.group().replace("-", "_"),
+                      string=contents, flags=re.MULTILINE)
+
+    # s_if_var_ 와 s_not_var 를 변환
+    # s_if_var 변환
+    contents = re.sub(pattern=r'<s_if_var_([^>]+)>', repl=r" {% if vars.\g<1> is defined %}", string=contents,
+                      flags=re.MULTILINE)
+    contents = re.sub(pattern=r'</s_if_var_([^>]+)>', repl=' {% endif %}', string=contents, flags=re.MULTILINE)
+
+    # s_not_var 변환
+    # {% if vars.\g<1> is none or not vars['\g<1>'] %}
+    contents = re.sub(pattern=r'<s_not_var_([^>]+)>', repl=r" {% if vars.\g<1> is not defined %}",
+                      string=contents, flags=re.MULTILINE)
+    contents = re.sub(pattern=r'</s_not_var_([^>]+)>', repl=' {% endif %}', string=contents, flags=re.MULTILINE)
+
+    # var 출력되는 부분 처리
+    contents = re.sub(pattern=r'\[##_var_([^\]]+)_##\]', repl=r"{{ vars.\g<1> }}", string=contents,
+                      flags=re.MULTILINE)
+    return contents
+
+
 def parse_notice(contents: str) -> str:
     contents = re.sub(pattern=r'<s_notice_rep_([^>]+)>', repl=r" {% if notice_rep[\g<1>] %}", string=contents,
                       flags=re.MULTILINE)
     contents = re.sub(pattern=r'</s_notice_rep_([^>]+)>', repl=r' {% endif %}', string=contents, flags=re.MULTILINE)
+    return contents
+
+
+def parse_guest(contents: str) -> str:
+    contents = contents.replace("<s_guest>", "{% if guest %}")
+    contents = contents.replace("</s_guest>", "{% endif %}")
+
+    # 화면에 보여져야하기 때문에. 몇가지는 그냥 제거
+    contents = re.sub(pattern=r'</?s_guest_input_form>', repl="", string=contents,
+                      flags=re.MULTILINE)
+    contents = re.sub(pattern=r'</?s_guest_member>', repl="", string=contents,
+                      flags=re.MULTILINE)
+    contents = re.sub(pattern=r'</?s_guest_container>', repl="", string=contents,
+                      flags=re.MULTILINE)
+
+    return contents
+
+
+def parse_tag(contents: str) -> str:
+    contents = contents.replace("<s_tag>", "{% if tags is defined  %} is defined")
+    contents = contents.replace("</s_tag>", "{% endif %}")
+
+    contents = contents.replace("<s_tag_rep>", "{% for tag in tags %}")
+    contents = contents.replace("</s_tag_rep>", "{% endfor %}")
+
+    contents = contents.replace("<s_random_tags>", "{% for tag in tags %}")
+    contents = contents.replace("</s_random_tags>", "{% endfor %}")
+
+    contents = contents.replace("[##_tag_name_##]", "{{ tag.name }}")
+    contents = contents.replace("[##_tag_link_##]", "{{ tag.link }}")
+
+    # contents = contents.replace("[##_tag_name_##]", "{{ tag_name|safe }}")
+
+    return contents
+
+
+def parse_sidebar(contents: str) -> str:
+    # 화면에 보여져야하기 때문에. 몇가지는 그냥 제거
+    contents = re.sub(pattern=r'</?s_sidebar>', repl="", string=contents,
+                      flags=re.MULTILINE)
+    contents = re.sub(pattern=r'</?s_sidebar_element>', repl="", string=contents,
+                      flags=re.MULTILINE)
     return contents
 
 

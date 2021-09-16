@@ -9,9 +9,14 @@ import re
 
 
 def parse_article(contents: str) -> str:
+    # parmalink_article : 게시글 보기 일 때에 해당하는 사항에 대한 변환.
     contents = contents.replace("<s_permalink_article_rep>", "{% if article_rep['type'] == 'permalink' %}")
     contents = contents.replace("</s_permalink_article_rep>", "{% endif %}")
-    
+
+    # protected article : 보호된 글에 대한 변환.
+    contents = contents.replace("<s_article_protected>", "{% if article_protected %}")
+    contents = contents.replace("</s_article_protected>", "{% endif %}")
+
     # s_article_rep_ : article의 하위 값들. 작성일, 작성자, 링크, 제목 등
     contents = re.sub(pattern=r'<s_article_rep_([^>]+)>', repl=r" {% if article_rep[\g<1>] %}", string=contents,
                       flags=re.MULTILINE)
@@ -61,8 +66,61 @@ def parse_cover(contents: str) -> str:
     return contents
 
 
+def parse_index_article_rep(contents: str) -> str:
+    """
+    여기저기 가 있는 s_index_article_rep 를 모아서 s_list 뒷부분에 넣어준다.
+    :param contents:
+    :return:
+    """
+    s_article_protected = find_tags_inner_html('s_article_protected', contents)
+    s_index_article_rep = find_tags_inner_html('s_index_article_rep', s_article_protected)
+    # s_protected_index = re.findall(r'<s_index_article_rep>.*</s_index_article_rep>', s_protected, re.DOTALL)
+    # s_protected_index = s_protected_index[0]
+
+    index_article_protected = '{% if protected %}' + s_index_article_rep + '{% endif %}\n'
+    # print(protected_index_article)
+
+    s_article_rep = find_tags_inner_html('s_article_rep', contents)
+    s_index_article_rep = find_tags_inner_html('s_index_article_rep', s_article_rep)
+    index_article_normal = '{% if not protected %}' + s_index_article_rep + '{% endif %}\n'
+
+    # s_list 바로 안쪽 끝에 붙이기. append 하기.
+    # contents = re.sub(pattern='</', repl=r'', string=contents, flags=re.MULTILINE)
+    contents = contents.replace("</s_list>", index_article_protected + index_article_normal + "</s_list>")
+    return contents
+
+
 def parse_notice(contents: str) -> str:
     contents = re.sub(pattern=r'<s_notice_rep_([^>]+)>', repl=r" {% if notice_rep[\g<1>] %}", string=contents,
                       flags=re.MULTILINE)
     contents = re.sub(pattern=r'</s_notice_rep_([^>]+)>', repl=r' {% endif %}', string=contents, flags=re.MULTILINE)
     return contents
+
+
+def find_tags_inner_html(tag, context):
+    """
+    문자열에서 특정 태그로 감싸진 영역의 내부에 해당하는 html 텍스트를 반환하는 기능.
+    단순한 태그에 해당해서만 가능함. 태그안에 attribute가 있다면... 그건 beautifulSoup을 이용하자...
+    :param tag: 태그 명칭
+    :param context: 입력값
+    :return: html 텍스트
+    """
+    # r'<s_article_protected>.*</s_article_protected>' : outer_html
+    # r'<s_article_protected>(.*)</s_article_protected>' : inner_html
+    # regex = r'<' + re.escape(tag) + r'>(.*)</' + re.escape(tag) + r'>'  # 크게 찾을 때
+    regex = r'<' + re.escape(tag) + r'>(.+?)</' + re.escape(tag) + r'>'
+    ss = re.findall(regex, context, re.DOTALL)
+    if len(ss) > 0:
+        return ss[0]
+    else:
+        return ''
+
+
+def remove_tag(tag, context):
+    # r'<s_article_protected>.*</s_article_protected>' : outer_html
+    # r'<s_article_protected>(.*)</s_article_protected>' : inner_html
+    # 중복에 대한 처리가 안 되어 있네... 음... 어? * 을 +? 으로 바꾸니까 되네?
+    # regex = r'<' + re.escape(tag) + r'>(.*)</' + re.escape(tag) + r'>'
+    regex = r'<' + re.escape(tag) + r'>(.+?)</' + re.escape(tag) + r'>'
+    context = re.sub(pattern=regex, repl='', string=context, flags=re.DOTALL)
+    return context

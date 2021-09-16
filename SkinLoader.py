@@ -61,40 +61,31 @@ def render_skin(skin_name):
     # contents = contents.replace("<s_article_rep>", "{% if mode 'article' %}")
     # contents = contents.replace("</s_article_rep>", "{% endif %}")
 
+    # var 의 dash 방지 (스킨에 따라서 그런 경우가 있길래...)
+    contents = re.sub(pattern=r'</?s_(if|not)_var_([^>]+)>', repl=lambda m: m.group().replace("-", "_"),
+                      string=contents, flags=re.MULTILINE)
+    contents = re.sub(pattern=r'\[##_var_([^\]]+)_##\]', repl=lambda m: m.group().replace("-", "_"),
+                      string=contents, flags=re.MULTILINE)
+
     # s_if_var_ 와 s_not_var 는 정규식으로 처리
-    contents = re.sub(pattern=r'<s_if_var_([^>]+)>', repl=r" {% if vars['\g<1>'] is not none %}", string=contents, flags=re.MULTILINE)
+    contents = re.sub(pattern=r'<s_if_var_([^>]+)>', repl=r" {% if vars.\g<1> is not none %}", string=contents, flags=re.MULTILINE)
     contents = re.sub(pattern=r'</s_if_var_([^>]+)>', repl=' {% endif %}', string=contents, flags=re.MULTILINE)
     # s_not_var
-    contents = re.sub(pattern=r'<s_not_var_([^>]+)>', repl=r" {% if vars['\g<1>'] is none or not vars['\g<1>'] %}", string=contents, flags=re.MULTILINE)
+    contents = re.sub(pattern=r'<s_not_var_([^>]+)>', repl=r" {% if vars.\g<1> is none or not vars['\g<1>'] %}", string=contents, flags=re.MULTILINE)
     contents = re.sub(pattern=r'</s_not_var_([^>]+)>', repl=' {% endif %}', string=contents, flags=re.MULTILINE)
     # var 출력되는 부분 처리
-    contents = re.sub(pattern=r'\[##_var_([^\]]+)_##\]', repl=r"{{ vars['\g<1>'] }}", string=contents,
+    contents = re.sub(pattern=r'\[##_var_([^\]]+)_##\]', repl=r"{{ vars.\g<1> }}", string=contents,
                       flags=re.MULTILINE)
-    
-    changes = [
-        ["<s_article_rep>", "{% if mode 'article' %}"],
-        ["<s_search>", "{% if mode 'article' %}"],
-        ["<s_cover_group>", "{% if mode 'article' %}"],
-        ["<s_cover_rep>", "{% if mode 'article' %}"],
-        ["<s_cover_item>", "{% if mode 'article' %}"],
-        ["</s_cover_item>", "{% if mode 'article' %}"],
-        ["<s_cover_url>", "{% if mode 'article' %}"],
-        ["<s_cover_item_article_info>", "{% if mode 'article' %}"],
-        ["<s_cover_item_thumbnail>", "{% if mode 'article' %}"],
-        ["<s_page_rep>", "{% if mode 'article' %}"],
-        ["<s_notice_rep>", "{% if mode 'article' %}"],
-        ["<s_notice_rep_thumbnail>", "{% if mode 'article' %}"],
-        ["<s_list>", "{% if mode 'article' %}"],
-        ["<s_list_empty>", "{% if mode 'article' %}"],
-        ["<s_article_protected>", "{% if mode 'article' %}"],
-        ["<s_index_article_rep>", "{% if mode 'article' %}"],
-        ["<s_permalink_article_rep>", "{% if mode 'article' %}"],
-        ["<s_ad_div>", "{% if mode 'article' %}"],
-        ["<s_tag_label>", "{% if mode 'article' %}"],
-        ["<s_article_protected>", "{% if mode 'article' %}"],
-        ["<s_article_protected>", "{% if mode 'article' %}"],
 
-    ]
+    # index_article 에서 index_article_rep 로 처리된 게 있으면 s_list 후반부에 붙이기
+    contents = SkinParser.parse_index_article_rep(contents)
+
+    # 원래 있던 protected index_article_rep 는 제거하기.
+    contents = SkinParser.remove_tag('s_index_article_rep', contents)
+    
+    # s_list 를 변환
+    contents = contents.replace("<s_list>", "{% if list %}")
+    contents = contents.replace("</s_list>", "{% endif %}")
 
     # cover 기능
     contents = SkinParser.parse_cover(contents)

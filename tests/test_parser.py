@@ -9,6 +9,11 @@ def test_render_skin():
 
 def test_parse_index_article_rep():
     skin_law = SkinLoader.get_skin_raw('skin-bookclub-custom')
+    soup = BeautifulSoup(skin_law, "lxml")
+    s = soup.find_all("s_index_article_rep")
+    for i in s:
+        print(i.parent.name)
+    # print(s)
 
 
 def test_render_var_if():

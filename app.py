@@ -18,7 +18,9 @@ def index():
 @app.route("/<name>")
 def render_skin(name):
     # return name
-    return render_template('index.html')
+
+    var_list = {}
+    return render_template('test.html', vars=var_list)
 
 
 # flask run -p 5000

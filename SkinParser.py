@@ -35,16 +35,16 @@ def parse_cover(contents: str) -> str:
     contents = contents.replace("</s_cover_group>", "{% endif %}")
     
     # s_cover 에 해당하는 부분을 변환
-    contents = re.sub(pattern=r'<s_cover name=([^>]+)>', repl=r"{% if cover['type'] == \g<1> %}", string=contents,
+    contents = re.sub(pattern=r'<s_cover name=([^>]+)>', repl=r"{% if cover['name'] == \g<1> %}", string=contents,
                       flags=re.MULTILINE)
     contents = contents.replace("</s_cover>", "{% endif %}")
     
     # s_cover_item 에 해당하는 부분을 변환
-    contents = contents.replace("<s_cover_item>", "{% for cover_item in cover['item'] %}")
+    contents = contents.replace("<s_cover_item>", "{% for cover_item in cover['data'] %}")
     contents = contents.replace("</s_cover_item>", "{% endfor %}")
 
     # cover item 의 하위 요소에 대한 체크 루틴에 대한 변환
-    contents = re.sub(pattern=r'<s_cover_item_([^>]+)>', repl=r"{% if cover_item[\g<1>] %}", string=contents,
+    contents = re.sub(pattern=r'<s_cover_item_([^>]+)>', repl=r"{% if cover_item['\g<1>'] %}", string=contents,
                       flags=re.MULTILINE)
     contents = re.sub(pattern=r'</s_cover_item_([^>]+)>', repl=r' {% endif %}', string=contents, flags=re.MULTILINE)
 
@@ -57,10 +57,10 @@ def parse_cover(contents: str) -> str:
     contents = contents.replace("</s_cover_rep>", "{% endfor %}")
 
     # cover_title, cover_url 같은 것들에 대한 변환. (순서에 주의. 이 구문이 위로 가면 순서가 꼬일 수 있겠음)
-    contents = re.sub(pattern=r'\[##_cover_([^\]]+)_##\]', repl=r'{{ cover[\g<1>] }}', string=contents,
+    contents = re.sub(pattern=r'\[##_cover_([^\]]+)_##\]', repl=r"{{ cover['\g<1>'] }}", string=contents,
                       flags=re.MULTILINE)
     # cover 요소에 대한 if 변환
-    contents = re.sub(pattern=r'<s_cover_([^>]+)>', repl=r"{% if cover[\g<1>] %}", string=contents,
+    contents = re.sub(pattern=r'<s_cover_([^>]+)>', repl=r"{% if cover['\g<1>'] %}", string=contents,
                       flags=re.MULTILINE)
     contents = re.sub(pattern=r'</s_cover_([^>]+)>', repl=r'{% endif %}', string=contents, flags=re.MULTILINE)
     return contents

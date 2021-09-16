@@ -138,7 +138,11 @@ def render_skin(skin_name):
     contents = contents.replace("[##_count_today_##]", "{{ count_today }}")
     contents = contents.replace("[##_count_yesterday_##]", "{{ count_yesterday }}")
     contents = contents.replace("[##_blog_link_##]", "{{ blog_link }}")
-
+    contents = contents.replace("[##_search_name_##]", "")
+    contents = contents.replace("[##_search_onclick_submit_##]", "")
+    contents = contents.replace("[##_search_text_##]", "검색어")
+    contents = contents.replace("[##_owner_url_##]", "#")
+    contents = contents.replace("[##_blog_menu_##]", "{{ blog_menu|safe }}")
 
 
     # s_list 에서 처리. s_index_article_rep에 대한 내용을 넣어줄 필요가 있다. 이 경우 파싱을 해야할 듯?

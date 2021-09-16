@@ -3,6 +3,7 @@ import re
 from bs4 import BeautifulSoup
 
 import SkinParser
+import SkinController
 
 
 def test_render_skin():
@@ -12,6 +13,17 @@ def test_render_skin():
 def my_replace(match):
     print(match.group())
     return match.group().replace("-", "_")
+
+
+def test_replace_menu():
+    context = SkinController.get_blog_config_json()
+    blog_menu = context['blog_menu']
+    # print(blog_menu)
+    skin_name = 'custom-asdd'
+    blog_menu = re.sub(pattern=r'<a href="/([^"]*)"', repl=r'<a href="/'+skin_name+r'/\g<1>"',
+                       string=blog_menu,
+                       flags=re.MULTILINE)
+    print(blog_menu)
 
 
 def test_dash_to_underscore2():

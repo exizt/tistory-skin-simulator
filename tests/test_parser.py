@@ -72,7 +72,7 @@ def test_dash_to_underscore():
 
 
 def test_render_index_article():
-    contents = SkinLoader.get_skin_raw('skin-bookclub-custom')
+    contents = SkinLoader.read_skin_raw('skin-bookclub-custom')
 
     # print(contents)
     # ss = re.findall(r'<s_article_protected>(.+?)</s_article_protected>', contents, re.MULTILINE)
@@ -151,7 +151,7 @@ def test_remove_by_tags():
 
 
 def test_parse_index_article_rep():
-    skin_law = SkinLoader.get_skin_raw('skin-bookclub-custom')
+    skin_law = SkinLoader.read_skin_raw('skin-bookclub-custom')
     soup = BeautifulSoup(skin_law, "lxml")
     s = soup.find_all("s_index_article_rep")
 

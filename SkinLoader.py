@@ -2,11 +2,10 @@ import os
 import pathlib
 from bs4 import BeautifulSoup
 import re
+
 import SkinParser
 import hashlib
 
-
-skin_hash = ''
 
 def get_skins() -> list:
     """
@@ -42,36 +41,46 @@ def get_skins_dir_path() -> str:
     return skins_path
 
 
-def get_skin_path(skin_name: str):
+def get_skin_path(skin_name: str) -> str:
     skins_dir = get_skins_dir_path()
     skin_path = os.path.join(skins_dir, skin_name)
+    return skin_path
+
+
+def get_skin_html_path(skin_name: str):
+    skin_path = get_skin_path(skin_name)
     html_path = os.path.join(skin_path, 'skin.html')
     return html_path
 
 
-def get_skin_raw(skin_name: str) -> str:
+def read_skin_raw(skin_name: str) -> str:
     """
     스킨의 내용을 가져오는 기능
     :param skin_name: 스킨 폴더의 이름
     :return: 스킨의 내용
     """
-    with open(get_skin_path(skin_name), 'r', encoding='utf-8') as f:
+    with open(get_skin_html_path(skin_name), 'r', encoding='utf-8') as f:
         contents = f.read()
     return contents
 
 
 def get_skin_mtime(skin_name):
-    return os.path.getmtime(get_skin_path(skin_name))
+    return os.path.getmtime(get_skin_html_path(skin_name))
 
 
-def get_template_name(skin_name):
+def get_template_filename(skin_name):
     return f'{skin_name}_skin.html'
 
 
 def get_template_path(skin_name):
     templates_path = os.path.join(get_current_path(), 'templates')
-    templates_path = os.path.join(templates_path, get_template_name(skin_name))
+    templates_path = os.path.join(templates_path, 'skin_cache')
+    templates_path = os.path.join(templates_path, get_template_filename(skin_name))
     return templates_path
+
+
+def get_template_relpath(skin_name):
+    return 'skin_cache/'+get_template_filename(skin_name)
 
 
 def get_template_mtime(skin_name):
@@ -79,78 +88,86 @@ def get_template_mtime(skin_name):
 
 
 def render_skin(skin_name):
-    contents = get_skin_raw(skin_name)
+    context = read_skin_raw(skin_name)
 
-    # global skin_hash
-    # skin_hash = hashlib.md5(contents).hexdigest()
+    # 공통
+    context = context.replace("[##_body_id_##]", "{{ body_id }}")
+    context = context.replace("[##_page_title_##]", f"{skin_name} 스킨")
 
-    # 게시글
-    # contents = contents.replace("<s_article_rep>", "{% if mode 'article' %}")
-    # contents = contents.replace("</s_article_rep>", "{% endif %}")
+    # 전체를 감싸는 태그
+    context = re.sub(pattern=r'</?s_t3>', repl="", string=context, flags=re.MULTILINE)
+    # 광고 관련 태그
+    context = context.replace("[##_revenue_list_upper_##]", "")
+    context = context.replace("[##_revenue_list_lower_##]", "")
+    # 이따금 오류 일으킬 소지가 있음.
+    context = context.replace("[##_article_rep_thumbnail_raw_url_##]", "")
+    # 불필요한 경우들 (작업하려면 봐야하므로)
+    context = re.sub(pattern=r'</?s_search>', repl="", string=context, flags=re.MULTILINE)
+    context = re.sub(pattern=r'</?s_ad_div>', repl="", string=context, flags=re.MULTILINE)
 
     # s_if_var_ 와 s_not_var 를 변환
-    contents = SkinParser.parse_skin_var(contents)
-
-    # index_article 에서 index_article_rep 로 처리된 게 있으면 s_list 후반부에 붙이기
-    contents = SkinParser.parse_index_article_rep(contents)
-
-    # 원래 있던 index_article_rep 는 제거하기.
-    contents = SkinParser.remove_tag('s_index_article_rep', contents)
-    
-    # s_list 를 변환
-    contents = contents.replace("<s_list>", "{% if list %}")
-    contents = contents.replace("</s_list>", "{% endif %}")
+    context = SkinParser.parse_skin_var(context)
 
     # cover 기능
-    contents = SkinParser.parse_cover(contents)
+    context = SkinParser.parse_cover(context)
 
     # notice 관련.
-    contents = SkinParser.parse_notice(contents)
+    context = SkinParser.parse_notice(context)
+
+    # s_index_article_rep 관련.
+    context = SkinParser.parse_index_article_rep(context)
+
+    # s_list 와 관련된 것 변환.
+    context = SkinParser.parse_s_list(context)
 
     # article 관련.
-    contents = SkinParser.parse_article(contents)
+    context = SkinParser.parse_article(context)
 
     # guest 관련.
-    contents = SkinParser.parse_guest(contents)
+    context = SkinParser.parse_guest(context)
 
     # tag 관련
-    contents = SkinParser.parse_tag(contents)
+    context = SkinParser.parse_tag(context)
 
     # sidebar 관련
-    contents = SkinParser.parse_sidebar(contents)
-    
+    context = SkinParser.parse_sidebar(context)
+
+    # 위치 로그 관련
+    context = SkinParser.parse_location_log(context)
+
     # 아예 여러개 있으면 여러번 돌고 하나만 있으면 하나만 도는 식으로 처리하는 게 나으려나?
     # 보니까 남은 것 중 _rep 는 repeat 인 거 같다?
-    contents = re.sub(pattern=r'<s_([^>]+)_rep>', repl=r'{% for \g<1>_rep in \g<1>_list %}', string=contents, flags=re.MULTILINE)
-    contents = re.sub(pattern=r'</s_([^>]+)_rep>', repl=r'{% endfor %}', string=contents, flags=re.MULTILINE)
-
-    # 글 목록 (s_list)
-    # 두 가지의 경우가 있는데, s_index_article_rep 를 이용하는 방식과 s_list_rep를 이용한 방식이 있다.
-    # contents = contents.replace("<s_list_rep>", "{% for list_rep in list_list %}")
-    # contents = contents.replace("</s_list_rep>", "{% endfor %}")
-
-    contents = re.sub(pattern=r'\[##_list_rep_([^\]]+)_##\]', repl=r'{{list_rep\[ \g<1> \]}}', string=contents,
-                      flags=re.MULTILINE)
+    context = re.sub(pattern=r'<s_([^>]+)_rep>', repl=r'{% for \g<1>_rep in \g<1>_list %}', string=context, flags=re.MULTILINE)
+    context = re.sub(pattern=r'</s_([^>]+)_rep>', repl=r'{% endfor %}', string=context, flags=re.MULTILINE)
 
     # 기타 변수들 (한 번에 바꿔도 되는데. 그건 어느 정도 정리 된 후에 하자. 지금은 조금 이른 듯.
-    contents = contents.replace("[##_title_##]", "{{ title }}")
-    contents = contents.replace("[##_count_total_##]", "{{ count_total }}")
-    contents = contents.replace("[##_count_today_##]", "{{ count_today }}")
-    contents = contents.replace("[##_count_yesterday_##]", "{{ count_yesterday }}")
-    contents = contents.replace("[##_blog_link_##]", "{{ blog_link }}")
-    contents = contents.replace("[##_search_name_##]", "")
-    contents = contents.replace("[##_search_onclick_submit_##]", "")
-    contents = contents.replace("[##_search_text_##]", "검색어")
-    contents = contents.replace("[##_owner_url_##]", "#")
-    contents = contents.replace("[##_blog_menu_##]", "{{ blog_menu|safe }}")
-
-
-    # s_list 에서 처리. s_index_article_rep에 대한 내용을 넣어줄 필요가 있다. 이 경우 파싱을 해야할 듯?
-    # s_list 뒤에 붙이면 되려나? for 블라블라 if protected else endif 같은 느낌?
+    # 블로그 제목
+    context = context.replace("[##_title_##]", "{{ title }}")
+    # 프로필 이미지, 또는 블로그 대표 이미지
+    context = context.replace("[##_image_##]", "{{ image }}")
+    # 블로거 필명
+    context = context.replace("[##_blogger_##]", "{{ blogger }}")
+    # 블로그 설명
+    context = context.replace("[##_desc_##]", "{{ desc }}")
+    # 블로그 url
+    context = context.replace("[##_blog_link_##]", "{{ blog_link }}")
+    # rss_url
+    context = context.replace("[##_rss_url_##]", "#")
+    # 카운트들
+    context = context.replace("[##_count_total_##]", "{{ count_total }}")
+    context = context.replace("[##_count_today_##]", "{{ count_today }}")
+    context = context.replace("[##_count_yesterday_##]", "{{ count_yesterday }}")
+    context = context.replace("[##_search_name_##]", "")
+    context = context.replace("[##_search_onclick_submit_##]", "")
+    context = context.replace("[##_search_text_##]", "검색어")
+    context = context.replace("[##_owner_url_##]", "#")
+    context = context.replace("[##_blog_menu_##]", "{{ blog_menu|safe }}")
+    context = context.replace("[##_guestbook_link_##]", "./guestbook")
+    context = context.replace("[##_taglog_link_##]", "./tags")
 
     # contents = re.sub(pattern=r'<s_([^>]+)_rep>', repl=r'{% for i in \g<1> %}', string=contents, flags=re.MULTILINE)
     # s_cover 는 name 값을 갖고 있어서, 얘는 별도로.
 
     # 템플릿 파일로 생성
     with open(get_template_path(skin_name), 'w', encoding='utf-8') as f:
-        f.write(contents)
+        f.write(context)

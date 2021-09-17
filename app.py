@@ -2,7 +2,6 @@
 from flask import Flask, jsonify, request, send_from_directory, render_template, Response
 import SkinLoader
 import SkinController as controller
-import os.path
 
 
 app = Flask(__name__, static_url_path='/static')  # Flask 객체 선언.
@@ -12,34 +11,72 @@ app = Flask(__name__, static_url_path='/static')  # Flask 객체 선언.
 def index():
     skins = SkinLoader.get_skins()
 
-    html = ''
+    html = '<ul>'
     for skin in skins:
-        html += f'<a href="/{skin}/">{skin}</a>'
-    return 'html'
+        html += f'<li><a href="/{skin}/" target="_blank">{skin}</a></li>'
+    html += "</ul>"
+    return html
 
 
 @app.route("/<skin_name>/")
-def render_skin(skin_name):
-    skins = SkinLoader.get_skins()
-    valid = skin_name in skins
-    if not valid:
+def show_home(skin_name):
+    # 유효한 스킨 이름인지 체크
+    if not valid_skin(skin_name):
         return ''
 
-    if not os.path.exists(SkinLoader.get_template_path(skin_name)):
-        # 템플릿이 없으므로 재생성
-        SkinLoader.render_skin(skin_name)
+    context = controller.wrap(skin_name, 'show_home')
+    return render_template(SkinLoader.get_template_relpath(skin_name), **context)
 
-    # 파일의 변경 시간을 조회
-    sk_mtime = SkinLoader.get_skin_mtime(skin_name)
-    tp_mtime = SkinLoader.get_template_mtime(skin_name)
 
-    if sk_mtime > tp_mtime + 100:
-        # 템플릿이 오래되었으므로 재생성
-        print('rebuild skin templates')
-        SkinLoader.render_skin(skin_name)
+@app.route("/<skin_name>/category")
+def show_category(skin_name):
+    # 유효한 스킨 이름인지 체크
+    if not valid_skin(skin_name):
+        return ''
 
-    context = controller.home(skin_name)
-    return render_template(SkinLoader.get_template_name(skin_name), **context)
+    context = controller.wrap(skin_name, 'show_category')
+    return render_template(SkinLoader.get_template_relpath(skin_name), **context)
+
+
+@app.route("/<skin_name>/article")
+def show_article(skin_name):
+    # 유효한 스킨 이름인지 체크
+    if not valid_skin(skin_name):
+        return ''
+
+    context = controller.wrap(skin_name, 'show_article')
+    return render_template(SkinLoader.get_template_relpath(skin_name), **context)
+
+
+@app.route("/<skin_name>/tags")
+def show_tags(skin_name):
+    # 유효한 스킨 이름인지 체크
+    if not valid_skin(skin_name):
+        return ''
+
+    context = controller.wrap(skin_name, 'show_tags')
+    return render_template(SkinLoader.get_template_relpath(skin_name), **context)
+
+
+@app.route("/<skin_name>/guestbook")
+def show_guestbook(skin_name):
+    # 유효한 스킨 이름인지 체크
+    if not valid_skin(skin_name):
+        return ''
+
+    context = controller.wrap(skin_name, 'show_guestbook')
+    return render_template(SkinLoader.get_template_relpath(skin_name), **context)
+
+
+def valid_skin(skin_name) -> bool:
+    """
+    유효한 스킨 이름인지 체크
+    :param skin_name: 티스토리 스킨명
+    :return:bool
+    """
+    skins = SkinLoader.get_skins()
+    valid = skin_name in skins
+    return valid
 
 
 @app.route("/<name>/style.css")

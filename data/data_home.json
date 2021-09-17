@@ -1,0 +1,56 @@
+                        [
+                                {
+                                        "name22": "cover-thumbnail-1",
+                                        "title": "커버 타이틀 1",
+                                        "data": [
+                                                {
+                                                        "url": "#",
+                                                        "article_info": "...",
+                                                        "title": "게시글",
+                                                        "simple_date": "2021.09.14"
+                                                },
+                                                {
+                                                        "url": "#",
+                                                        "article_info": "...",
+                                                        "title": "게시글",
+                                                        "simple_date": "2021.09.14"
+                                                },
+                                                {
+                                                        "url": "#",
+                                                        "article_info": "...",
+                                                        "title": "게시글",
+                                                        "simple_date": "2021.09.14"
+                                                }
+                                        ]
+                                },
+                                {
+                                        "type": "cover-thumbnail-2",
+                                        "title": "커버 타이틀 2",
+                                        "item": [
+                                                {
+                                                        "url": "#",
+                                                        "article_info": "...",
+                                                        "title": "게시글",
+                                                        "simple_date": "2021.09.14"
+                                                },
+                                                {
+                                                        "url": "#",
+                                                        "article_info": "...",
+                                                        "title": "게시글",
+                                                        "simple_date": "2021.09.14"
+                                                },
+                                                {
+                                                        "url": "#",
+                                                        "article_info": "...",
+                                                        "title": "게시글",
+                                                        "simple_date": "2021.09.14"
+                                                },
+                                                {
+                                                        "url": "#",
+                                                        "article_info": "...",
+                                                        "title": "게시글",
+                                                        "simple_date": "2021.09.14"
+                                                }
+                                        ]
+                                },
+                        ]

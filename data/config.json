@@ -1,0 +1,15 @@
+{
+  "title": "블로그 제목",
+  "count_total": "575,167",
+  "count_today": "279",
+  "count_yesterday": "292",
+  "desc": "블로그입니다.",
+  "blogger": "블로거필명",
+  "blog_link": "./",
+  "image": "/static/profile.gif",
+  "rss_url": "#",
+  "taglog_link": "#",
+  "guestbook_link": "#",
+  "page_title": "페이지 제목",
+  "blog_menu": "<ul><li class=\"t_menu_home first\"><a href=\"/\">홈</a></li><li class=\"t_menu_guestbook\"><a href=\"/article\">글</a></li><li class=\"t_menu_guestbook\"><a href=\"/category\">카테고리/글목록</a></li><li class=\"t_menu_tag\"><a href=\"/tags\">태그</a></li><li class=\"t_menu_guestbook last\"><a href=\"/guestbook\">방명록</a></li></ul>"
+}

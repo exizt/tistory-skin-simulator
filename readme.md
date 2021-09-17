@@ -78,7 +78,7 @@ skins/
 - `/(스킨 폴더명)/tags` : 태그 화면 
 - `/(스킨 폴더명)/guestbook` : 방명록 화면
 
-
+<br><br><br>
 # 3. 코드에 대한 간략 설명
 거의 대부분은 정규표현식으로 replace 하는 형태로 되어있습니다. 
 
@@ -87,7 +87,7 @@ skins/
 생성되는 파일은 `templates/skin_cache/` 밑에 위치합니다. 
 
 변경이 잘 안 될 시에는 이 폴더에 있는 임시 templates파일들(`스킨폴더명_skin.html`로 생성됨)을 삭제하시고 새로고침하시면 됩니다. 
-
+<br><br><br>
 
 # 사용된 파이썬 패키지
 * pip install flask : flask

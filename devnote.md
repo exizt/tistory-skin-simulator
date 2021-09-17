@@ -1,14 +1,14 @@
 # 개발 관련 노트
 
 
-# 셋팅 고급자
+# 셋팅 (고급자)
 
 명령어로 git clone부터 하나씩
 
 (셋팅)
 ```console
-git clone https://github.com/exizt/tistory-skin-builder.git tistory-skin-builder
-cd tistory-skin-builder
+git clone https://github.com/exizt/tistory-skin-simulator.git tistory-skin-simulator
+cd tistory-skin-simulator
 python -m venv venv
 ./venv/scripts/activate
 pip install -r requirements.txt

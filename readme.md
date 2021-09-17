@@ -26,6 +26,7 @@ docker-compose up --build --force-recreate -d
 ##### vscode 를 이용할 경우
 터미널에서 셋팅하기
 ```console
+git clone https://github.com/exizt/tistory-skin-builder.git
 python -m venv venv
 ./venv/scripts/activate
 pip install -r requirements.txt

@@ -21,7 +21,7 @@ env.bak/
 venv.bak/
 
 # add
-!skins/
-skins/*
-!templates/
-templates/*
+!/skins/
+/skins/*
+!/templates/
+/templates/*

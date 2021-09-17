@@ -15,7 +15,8 @@ def get_skins() -> list:
     # skins 디렉토리의 경로
     skins_path = get_skins_dir_path()
     # skin의 목록
-    skins = os.listdir(skins_path)
+    # skins = os.listdir(skins_path)
+    skins = [name for name in os.listdir(skins_path) if os.path.isdir(os.path.join(skins_path, name))]
     if len(skins) > 0:
         return skins
     else:

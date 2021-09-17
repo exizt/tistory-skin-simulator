@@ -22,36 +22,12 @@ docker-compose up --build --force-recreate -d
 ```
 
 ### 방법3. 도커없이 그냥 flask 구동하기
-#### 윈도우 환경 (파이썬 설치 선행 필요)
-##### vscode 를 이용할 경우
-터미널에서 셋팅하기
-```console
-git clone https://github.com/exizt/tistory-skin-builder.git
-python -m venv venv
-./venv/scripts/activate
-pip install -r requirements.txt
-```
-
-flask 실행하기
-```console
-python -m flask run
-```
-혹은 vscode터미널에서 준비된 스크립트를 이용해서 flask 실행
-```console
-runv
-```
-
-##### pycharm 을 이용할 경우
-파이참의 설정을 통해서 venv셋팅과 pip install을 진행합니다. 혹은 `pip install -r requirements.txt`을 합니다.
-
-pycharm 터미널에서 flask 실행
-```console
-python -m flask run
-```
-혹은 pycharm 터미널에서 준비된 스크립트를 이용해서 flask 실행
-```console
-run
-```
+#### 윈도우 환경 (파이썬 설치 선행 필요: 파이썬 3 이상 필요)
+1. 다운로드 받거나 git clone 하기. 
+    `git clone https://github.com/exizt/tistory-skin-builder.git`
+2. 셋팅 : 해당 폴더에 있는 'install.bat'을 더블클릭하여 실행하거나, 해당 경로에서 커맨드창을 열고 install.bat을 실행하기
+   1. install.bat을 사용하지 않고 터미널창(커맨드창)에서 직접 명령줄을 실행해도 됨. venv 만들고, pip install 하시면 됩니다.
+3. flask 실행 : 해당 폴더에 있는 'run.bat'을 더블클릭하여 실행하거나, 터미널창에서 실행
 
 
 ## 작성법 및 사용법

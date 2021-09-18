@@ -74,10 +74,16 @@ def get_template_filename(skin_name):
 
 
 def get_template_path(skin_name):
-    templates_path = os.path.join(get_current_path(), 'templates')
-    templates_path = os.path.join(templates_path, 'skin_cache')
-    templates_path = os.path.join(templates_path, get_template_filename(skin_name))
-    return templates_path
+    path = os.path.join(get_current_path(), 'templates')
+    path = os.path.join(path, 'skin_cache')
+    path = os.path.join(path, get_template_filename(skin_name))
+    return path
+
+
+def get_templates_cache_dir_path():
+    templates_dirpath = os.path.join(get_current_path(), 'templates')
+    templates_dirpath = os.path.join(templates_dirpath, 'skin_cache')
+    return templates_dirpath
 
 
 def get_template_relpath(skin_name):

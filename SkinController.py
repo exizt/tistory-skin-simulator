@@ -7,6 +7,9 @@ import SkinLoader
 
 
 def wrap(skin_name, route):
+    # templates/skin_cache 폴더가 없을 경우, 폴더를 생성하기
+
+
     # 스킨의 flask 템플릿 생성 혹은 재로드
     render_skin(skin_name)
 
@@ -248,22 +251,31 @@ def get_common_context(skin_name):
 
 
 def render_skin(skin_name):
+    # 스킨 목록을 조회
     skins = SkinLoader.get_skins()
     valid = skin_name in skins
     if not valid:
+        # skins 폴더에 없는 스킨명이므로 아무것도 안 함. 잘못된 접근임.
         return ''
 
+    # 스킨 템플릿 캐시 폴더가 없는 상태라면 폴더 생성
+    cache_dir = SkinLoader.get_templates_cache_dir_path()
+    if not os.path.exists(cache_dir):
+        print('create skin_cache directory.')
+        os.makedirs(cache_dir)
+
+    # 스킨 템플릿 캐시 파일이 존재하는지 여부
     if not os.path.exists(SkinLoader.get_template_path(skin_name)):
-        # 템플릿이 없으므로 재생성
+        # 스킨 템플릿 캐시 파일 재생성
+        print(f'build skin template cache..({skin_name})')
         SkinLoader.render_skin(skin_name)
 
-    # 파일의 변경 시간을 조회
+    # skin.html 파일과 스킨 템플릿 캐시 파일의 최종 변경시간을 비교
     sk_mtime = SkinLoader.get_skin_mtime(skin_name)
     tp_mtime = SkinLoader.get_template_mtime(skin_name)
-
-    if sk_mtime > tp_mtime + 100:
+    if sk_mtime > tp_mtime + 10:
         # 템플릿이 오래되었으므로 재생성
-        print('rebuild skin templates')
+        print(f'rebuild skin template cache..({skin_name})')
         SkinLoader.render_skin(skin_name)
 
 

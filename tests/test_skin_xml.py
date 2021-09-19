@@ -1,11 +1,6 @@
-import SkinLoader
-import re
-from bs4 import BeautifulSoup
-
-import SkinParser
-import SkinController
-import SkinXML
 import json
+
+import SkinXML
 
 
 def test_skin_xml_vars():

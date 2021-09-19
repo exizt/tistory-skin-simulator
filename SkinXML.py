@@ -1,12 +1,6 @@
 import os
-import pathlib
-from bs4 import BeautifulSoup
-import re
 import time
 import SkinLoader
-import SkinParser
-import hashlib
-# from xml.etree.ElementTree import parse as xml_parse
 # noinspection PyPep8Naming
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import Element as XMLElement

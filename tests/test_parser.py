@@ -52,6 +52,7 @@ def test_dash_to_underscore2():
     # contents = regex.sub(lambda m: m.group().replace('-', "_"), contents)
     # print(contents)
 
+
 def test_dash_to_underscore():
     contents = """
     vars.a-z-b

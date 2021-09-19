@@ -2,7 +2,7 @@ import os
 import pathlib
 from bs4 import BeautifulSoup
 import re
-
+import time
 import SkinLoader
 import SkinParser
 import hashlib
@@ -12,6 +12,7 @@ import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import Element as XMLElement
 
 XML_SKIN_ELEMENTS = {}
+XML_SKIN_TIME = {}
 
 
 def get_skin_vars(skin_name):
@@ -57,11 +58,21 @@ def load(skin_name) -> XMLElement:
         raise
 
     if skin_name not in XML_SKIN_ELEMENTS:
-        # XML_ROOT_ELEMENTS 에 없을 경우 XML을 로드
+        # XML_ROOT_ELEMENTS 에 없을 경우 XML을 로드한다.
+        print(f'load skin index.xml..({skin_name}/index.xml)')
         XML_SKIN_ELEMENTS[skin_name] = load_by_path(xml_path)
+        XML_SKIN_TIME[skin_name] = time.time()
     else:
         # 데이터가 오래된 경우를 비교해서 재생성
-        pass
+        if skin_name in XML_SKIN_TIME:
+            changed_at = os.path.getmtime(xml_path)
+            if changed_at > XML_SKIN_TIME[skin_name] + 1:
+                # 재생성
+                print(f'Detected change in ({skin_name}/index.xml), reloading..')
+                XML_SKIN_ELEMENTS[skin_name] = load_by_path(xml_path)
+                XML_SKIN_TIME[skin_name] = changed_at
+    # print(str(os.path.getmtime(xml_path)) + "index.xml mtime")
+    # print(str(XML_SKIN_TIME[skin_name]) + "XML_SKIN_TIME mtime")
 
     return XML_SKIN_ELEMENTS[skin_name]
 
@@ -72,7 +83,7 @@ def load_by_path(xml_path: str) -> XMLElement:
     :param xml_path:xml의 절대경로
     :return:XMLElement
     """
-    print('[SkinXML] Skin XML Load by path')
+    # print('[SkinXML] Skin XML Load by path')
     # 예전 방식으로 file의 내용을 읽는 방식
     # with open(xml_path, 'r', encoding='utf-8') as f:
     #     context = f.read()

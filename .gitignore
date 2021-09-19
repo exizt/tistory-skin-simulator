@@ -5,7 +5,7 @@ Thumbs.db
 # Editors
 .vscode/*
 !.vscode/settings.json
-.idea/
+.idea/*
 *.code-workspace
 
 # python cache
@@ -25,3 +25,7 @@ venv.bak/
 /skins/*
 !/templates/
 /templates/*
+
+# IDE
+!.idea/inspectionProfiles
+!.idea/scopes/

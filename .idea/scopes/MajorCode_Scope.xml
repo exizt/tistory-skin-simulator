@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="MajorCode_Scope" pattern="!file[tistory-skin-builder]:.idea/*&amp;&amp;!file[tistory-skin-builder]:static/*&amp;&amp;!file[tistory-skin-builder]:skins/*&amp;&amp;!file:*&amp;&amp;!file[tistory-skin-builder]:.idea//*&amp;&amp;!file[tistory-skin-builder]:skins//*&amp;&amp;!file:*/&amp;&amp;!file[tistory-skin-builder]:templates//*" />
+</component>

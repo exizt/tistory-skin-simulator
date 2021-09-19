@@ -1,9 +1,10 @@
-import SkinLoader
 import re
+
 from bs4 import BeautifulSoup
 
+import DataJsonLoader
+import SkinLoader
 import SkinParser
-import SkinController
 
 
 def test_render_skin():
@@ -16,7 +17,7 @@ def my_replace(match):
 
 
 def test_replace_menu():
-    context = SkinController.get_blog_config_json()
+    context = DataJsonLoader.get_blog_config_json()
     blog_menu = context['blog_menu']
     # print(blog_menu)
     skin_name = 'custom-asdd'

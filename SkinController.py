@@ -1,9 +1,9 @@
 import os
-import pathlib
 import json
 import re
 import SkinXML
 import SkinLoader
+import DataJsonLoader
 
 
 def wrap(skin_name, route):
@@ -35,7 +35,7 @@ def show_home(skin_name, context):
     """
     # 초기값
     cover_group = None
-    
+
     # 스킨의 index.xml 을 읽어오는 부분.
     xml = SkinXML.load(skin_name)
     # xml_cover = xml.find('default').find('cover')
@@ -143,30 +143,7 @@ def get_article_list_info():
 
 
 def get_article_index_list():
-    article_list = [
-        {
-            "title": "게시글 제목",
-            "link": "article",
-            "simple_date": "2021.09.16",
-            "summary": "글 요약입니다",
-            "desc": "글 본문입니다. 가나다라마바사아자차카타파하."
-        },
-        {
-            "title": "게시글 제목",
-            "link": "article",
-            "simple_date": "2021.09.15",
-            "summary": "글 요약입니다",
-            "desc": "글 본문입니다"
-        },
-        {
-            "title": "게시글 제목",
-            "link": "article",
-            "simple_date": "2021.09.14",
-            "summary": "글 요약입니다",
-            "desc": "글 본문입니다"
-        }
-    ]
-    return article_list
+    return DataJsonLoader.get_articles()
 
 
 def get_guestbook_list():
@@ -235,7 +212,7 @@ def get_common_context(skin_name):
     스킨 공통적인 설정에 대한 핸들링.
     :return:
     """
-    context = get_blog_config_json()
+    context = DataJsonLoader.get_blog_config_json()
     context['page_title'] = f"{skin_name} 스킨"
     context['blog_menu'] = render_blog_menu(context['blog_menu'], skin_name)
     context['vars'] = SkinXML.get_skin_vars(skin_name)
@@ -252,7 +229,7 @@ def get_common_context(skin_name):
 def render_skin(skin_name):
     """
     스킨의 정보를 조회하고 템플릿파일로 렌더링한다.
-    변경 상태 등을 체크하면서 렌더링을 해준다.
+    skin.html 의 변경을 감지해서 재렌더링을 한다.
     :param skin_name:
     :return:
     """
@@ -286,27 +263,6 @@ def render_skin(skin_name):
 
 def render_skin_to_template(skin_name):
     SkinLoader.to_template(skin_name)
-
-
-def get_blog_config_json():
-    return get_data_json('config.json')
-
-
-def get_data_json(file_name):
-    curpath = pathlib.Path(__file__).parent.absolute()
-    path = os.path.join(curpath, 'data')
-    path = os.path.join(path, file_name)
-    with open(path, 'r', encoding='utf-8') as f:
-        # context = f.read()
-        context = json.load(f)
-    return context
-
-
-def get_json(file_path):
-    with open(file_path, 'r', encoding='utf-8') as f:
-        # context = f.read()
-        context = json.load(f)
-    return context
 
 
 def render_blog_menu(blog_menu, skin_name):

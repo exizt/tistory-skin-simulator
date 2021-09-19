@@ -1,0 +1,23 @@
+[
+  {
+    "title": "게시글 제목",
+    "link": "article",
+    "simple_date": "2021.09.16",
+    "summary": "글 요약입니다",
+    "desc": "글 본문입니다. 가나다라마바사아자차카타파하."
+  },
+  {
+    "title": "게시글 제목",
+    "link": "article",
+    "simple_date": "2021.09.15",
+    "summary": "글 요약입니다",
+    "desc": "글 본문입니다"
+  },
+  {
+    "title": "게시글 제목",
+    "link": "article",
+    "simple_date": "2021.09.14",
+    "summary": "글 요약입니다",
+    "desc": "글 본문입니다"
+  }
+]

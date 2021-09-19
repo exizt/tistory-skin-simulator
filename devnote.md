@@ -18,7 +18,7 @@ pip install -r requirements.txt
 (실행)
 ```console
 call venv/scripts/activate
-python -m flask run
+python -m flask run -p 15000
 ```
 
 

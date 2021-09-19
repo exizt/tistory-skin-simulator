@@ -7,7 +7,7 @@ import SkinController
 
 
 def test_render_skin():
-    SkinLoader.render_skin('skin-bookclub-custom')
+    SkinLoader.to_template('skin-bookclub-custom')
 
 
 def my_replace(match):

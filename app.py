@@ -25,7 +25,7 @@ def show_home(skin_name):
         return ''
 
     context = controller.wrap(skin_name, 'show_home')
-    return render_template(SkinLoader.get_template_relpath(skin_name), **context)
+    return render_template(SkinLoader.get_template_file_relpath(skin_name), **context)
 
 
 @app.route("/<skin_name>/category")
@@ -35,7 +35,7 @@ def show_category(skin_name):
         return ''
 
     context = controller.wrap(skin_name, 'show_category')
-    return render_template(SkinLoader.get_template_relpath(skin_name), **context)
+    return render_template(SkinLoader.get_template_file_relpath(skin_name), **context)
 
 
 @app.route("/<skin_name>/article")
@@ -45,7 +45,7 @@ def show_article(skin_name):
         return ''
 
     context = controller.wrap(skin_name, 'show_article')
-    return render_template(SkinLoader.get_template_relpath(skin_name), **context)
+    return render_template(SkinLoader.get_template_file_relpath(skin_name), **context)
 
 
 @app.route("/<skin_name>/tags")
@@ -55,7 +55,7 @@ def show_tags(skin_name):
         return ''
 
     context = controller.wrap(skin_name, 'show_tags')
-    return render_template(SkinLoader.get_template_relpath(skin_name), **context)
+    return render_template(SkinLoader.get_template_file_relpath(skin_name), **context)
 
 
 @app.route("/<skin_name>/guestbook")
@@ -65,7 +65,7 @@ def show_guestbook(skin_name):
         return ''
 
     context = controller.wrap(skin_name, 'show_guestbook')
-    return render_template(SkinLoader.get_template_relpath(skin_name), **context)
+    return render_template(SkinLoader.get_template_file_relpath(skin_name), **context)
 
 
 def valid_skin(skin_name) -> bool:

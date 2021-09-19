@@ -1,11 +1,98 @@
 """
-렌더링과 파서 기능을 담당하는 부분.
-렌더링과 파서를 별도로 구분할 필요를 못 느껴서 하나로 관리.
+skin.html을 flask의 template파일로 변환하는 부분 중 기능적인 부분들을 담당.
+
+이를 호출하는 것은 SkinLoader
+
+렌더링과 파서 기능을 담당한다.
 """
-import os
-import pathlib
-from bs4 import BeautifulSoup
 import re
+
+
+def parse(context: str) -> str:
+    """
+    skin.html 을 flask template 형태로 변환.
+    :param context: str
+    :return:str
+    """
+    # 공통
+    context = context.replace("[##_body_id_##]", "{{ body_id }}")
+    context = context.replace("[##_page_title_##]", "{{ page_title }}")
+
+    # 전체를 감싸는 태그
+    context = re.sub(pattern=r'</?s_t3>', repl="", string=context, flags=re.MULTILINE)
+    # 광고 관련 태그
+    context = context.replace("[##_revenue_list_upper_##]", "")
+    context = context.replace("[##_revenue_list_lower_##]", "")
+    # 이따금 오류 일으킬 소지가 있음.
+    context = context.replace("[##_article_rep_thumbnail_raw_url_##]", "")
+    # 불필요한 경우들 (작업하려면 봐야하므로)
+    context = re.sub(pattern=r'</?s_search>', repl="", string=context, flags=re.MULTILINE)
+    context = re.sub(pattern=r'</?s_ad_div>', repl="", string=context, flags=re.MULTILINE)
+
+    # s_if_var_ 와 s_not_var 를 변환
+    context = parse_skin_var(context)
+
+    # cover 기능
+    context = parse_cover(context)
+
+    # notice 관련.
+    context = parse_notice(context)
+
+    # s_index_article_rep 관련.
+    context = parse_index_article_rep(context)
+
+    # s_list 와 관련된 것 변환.
+    context = parse_s_list(context)
+
+    # article 관련.
+    context = parse_article(context)
+
+    # guest 관련.
+    context = parse_guest(context)
+
+    # tag 관련
+    context = parse_tag(context)
+
+    # sidebar 관련
+    context = parse_sidebar(context)
+
+    # 위치 로그 관련
+    context = parse_location_log(context)
+
+    # 아예 여러개 있으면 여러번 돌고 하나만 있으면 하나만 도는 식으로 처리하는 게 나으려나?
+    # 보니까 남은 것 중 _rep 는 repeat 인 거 같다?
+    context = re.sub(pattern=r'<s_([^>]+)_rep>', repl=r'{% for \g<1>_rep in \g<1>_list %}', string=context,
+                     flags=re.MULTILINE)
+    context = re.sub(pattern=r'</s_([^>]+)_rep>', repl=r'{% endfor %}', string=context, flags=re.MULTILINE)
+
+    # 기타 변수들 (한 번에 바꿔도 되는데. 그건 어느 정도 정리 된 후에 하자. 지금은 조금 이른 듯.
+    # 블로그 제목
+    context = context.replace("[##_title_##]", "{{ title }}")
+    # 프로필 이미지, 또는 블로그 대표 이미지
+    context = context.replace("[##_image_##]", "{{ image }}")
+    # 블로거 필명
+    context = context.replace("[##_blogger_##]", "{{ blogger }}")
+    # 블로그 설명
+    context = context.replace("[##_desc_##]", "{{ desc }}")
+    # 블로그 url
+    context = context.replace("[##_blog_link_##]", "{{ blog_link }}")
+    # rss_url
+    context = context.replace("[##_rss_url_##]", "#")
+    # 카운트들
+    context = context.replace("[##_count_total_##]", "{{ count_total }}")
+    context = context.replace("[##_count_today_##]", "{{ count_today }}")
+    context = context.replace("[##_count_yesterday_##]", "{{ count_yesterday }}")
+    context = context.replace("[##_search_name_##]", "")
+    context = context.replace("[##_search_onclick_submit_##]", "")
+    context = context.replace("[##_search_text_##]", "검색어")
+    context = context.replace("[##_owner_url_##]", "#")
+    context = context.replace("[##_blog_menu_##]", "{{ blog_menu|safe }}")
+    context = context.replace("[##_guestbook_link_##]", "./guestbook")
+    context = context.replace("[##_taglog_link_##]", "./tags")
+
+    # contents = re.sub(pattern=r'<s_([^>]+)_rep>', repl=r'{% for i in \g<1> %}', string=contents, flags=re.MULTILINE)
+    # s_cover 는 name 값을 갖고 있어서, 얘는 별도로.
+    return context
 
 
 def parse_cover(context: str) -> str:
@@ -120,6 +207,11 @@ def parse_s_list(context: str) -> str:
 
 
 def parse_article(context: str) -> str:
+    """
+    article 부분에 대한 변환
+    :param context: 
+    :return: 
+    """
     # parmalink_article : 게시글 보기 일 때에 해당하는 사항에 대한 변환.
     # contents = contents.replace("<s_permalink_article_rep>", "{% if article_rep['type'] == 'permalink' %}")
     # contents = contents.replace("</s_permalink_article_rep>", "{% endif %}")
@@ -147,6 +239,11 @@ def parse_article(context: str) -> str:
 
 
 def parse_skin_var(context: str) -> str:
+    """
+    스킨 고유 변수에 대한 변환
+    :param context: 
+    :return: 
+    """
     # 먼저, var 의 dash 방지 (스킨에 따라서 그런 경우가 있길래...)
     context = re.sub(pattern=r'</?s_(if|not)_var_([^>]+)>', repl=lambda m: m.group().replace("-", "_"),
                      string=context, flags=re.MULTILINE)
@@ -172,6 +269,11 @@ def parse_skin_var(context: str) -> str:
 
 
 def parse_notice(context: str) -> str:
+    """
+    공지사항 부분에 대한 변환
+    :param context: 
+    :return: 
+    """
     context = re.sub(pattern=r'<s_notice_rep_([^>]+)>', repl=r" {% if notice_rep[\g<1>] %}", string=context,
                      flags=re.MULTILINE)
     context = re.sub(pattern=r'</s_notice_rep_([^>]+)>', repl=r' {% endif %}', string=context, flags=re.MULTILINE)
@@ -179,6 +281,11 @@ def parse_notice(context: str) -> str:
 
 
 def parse_guest(context: str) -> str:
+    """
+    방명록 부분에 대한 변환
+    :param context: 
+    :return: 
+    """
     context = context.replace("<s_guest>", "{% if guest %}")
     context = context.replace("</s_guest>", "{% endif %}")
 
@@ -211,6 +318,11 @@ def parse_guest(context: str) -> str:
 
 
 def parse_tag(context: str) -> str:
+    """
+    tags 에 대한 변환
+    :param context: 
+    :return: 
+    """
     context = context.replace("<s_tag>", "{% if route_type == 'tags' %}")
     context = context.replace("</s_tag>", "{% endif %}")
 
@@ -240,6 +352,11 @@ def parse_location_log(context: str) -> str:
 
 
 def parse_sidebar(context: str) -> str:
+    """
+    사이드바 관련 변환
+    :param context: 
+    :return: 
+    """
     # 화면에 보여져야하기 때문에. 몇가지는 그냥 제거
     context = re.sub(pattern=r'</?s_sidebar>', repl="", string=context,
                      flags=re.MULTILINE)
@@ -268,6 +385,12 @@ def find_tags_inner_html(tag, context):
 
 
 def remove_tag(tag, context):
+    """
+    특정 태그를 제거할 때 사용
+    :param tag: 
+    :param context: 
+    :return: 
+    """
     # r'<s_article_protected>.*</s_article_protected>' : outer_html
     # r'<s_article_protected>(.*)</s_article_protected>' : inner_html
     # 중복에 대한 처리가 안 되어 있네... 음... 어? * 을 +? 으로 바꾸니까 되네?

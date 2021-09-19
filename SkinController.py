@@ -7,8 +7,6 @@ import SkinLoader
 
 
 def wrap(skin_name, route):
-    # templates/skin_cache 폴더가 없을 경우, 폴더를 생성하기
-
 
     # 스킨의 flask 템플릿 생성 혹은 재로드
     render_skin(skin_name)
@@ -149,14 +147,14 @@ def get_article_index_list():
         {
             "title": "게시글 제목",
             "link": "article",
-            "simple_date": "2021.09.14",
+            "simple_date": "2021.09.16",
             "summary": "글 요약입니다",
-            "desc": "글 본문입니다"
+            "desc": "글 본문입니다. 가나다라마바사아자차카타파하."
         },
         {
             "title": "게시글 제목",
             "link": "article",
-            "simple_date": "2021.09.14",
+            "simple_date": "2021.09.15",
             "summary": "글 요약입니다",
             "desc": "글 본문입니다"
         },
@@ -238,6 +236,7 @@ def get_common_context(skin_name):
     :return:
     """
     context = get_blog_config_json()
+    context['page_title'] = f"{skin_name} 스킨"
     context['blog_menu'] = render_blog_menu(context['blog_menu'], skin_name)
     context['vars'] = SkinXML.get_skin_vars(skin_name)
     context['tags'] = get_tags()
@@ -251,6 +250,12 @@ def get_common_context(skin_name):
 
 
 def render_skin(skin_name):
+    """
+    스킨의 정보를 조회하고 템플릿파일로 렌더링한다.
+    변경 상태 등을 체크하면서 렌더링을 해준다.
+    :param skin_name:
+    :return:
+    """
     # 스킨 목록을 조회
     skins = SkinLoader.get_skins()
     valid = skin_name in skins
@@ -265,29 +270,40 @@ def render_skin(skin_name):
         os.makedirs(cache_dir)
 
     # 스킨 템플릿 캐시 파일이 존재하는지 여부
-    if not os.path.exists(SkinLoader.get_template_path(skin_name)):
+    if not os.path.exists(SkinLoader.get_template_file_path(skin_name)):
         # 스킨 템플릿 캐시 파일 재생성
         print(f'build skin template cache..({skin_name})')
-        SkinLoader.render_skin(skin_name)
+        render_skin_to_template(skin_name)
 
     # skin.html 파일과 스킨 템플릿 캐시 파일의 최종 변경시간을 비교
     sk_mtime = SkinLoader.get_skin_mtime(skin_name)
-    tp_mtime = SkinLoader.get_template_mtime(skin_name)
+    tp_mtime = SkinLoader.get_template_file_mtime(skin_name)
     if sk_mtime > tp_mtime + 10:
         # 템플릿이 오래되었으므로 재생성
         print(f'rebuild skin template cache..({skin_name})')
-        SkinLoader.render_skin(skin_name)
+        render_skin_to_template(skin_name)
+
+
+def render_skin_to_template(skin_name):
+    SkinLoader.to_template(skin_name)
 
 
 def get_blog_config_json():
-    return get_json('config.json')
+    return get_data_json('config.json')
 
 
-def get_json(file_name):
+def get_data_json(file_name):
     curpath = pathlib.Path(__file__).parent.absolute()
     path = os.path.join(curpath, 'data')
     path = os.path.join(path, file_name)
     with open(path, 'r', encoding='utf-8') as f:
+        # context = f.read()
+        context = json.load(f)
+    return context
+
+
+def get_json(file_path):
+    with open(file_path, 'r', encoding='utf-8') as f:
         # context = f.read()
         context = json.load(f)
     return context

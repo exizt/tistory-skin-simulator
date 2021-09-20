@@ -25,6 +25,7 @@ venv.bak/
 /skins/*
 !/templates/
 /templates/*
+data_custom/
 
 # IDE
 !.idea/inspectionProfiles

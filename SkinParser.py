@@ -17,6 +17,7 @@ def parse(context: str) -> str:
     # 공통
     context = context.replace("[##_body_id_##]", "{{ body_id }}")
     context = context.replace("[##_page_title_##]", "{{ page_title }}")
+    context = context.replace("[##_category_list_##]", "{{ category_list|safe }}")
 
     # 전체를 감싸는 태그
     context = re.sub(pattern=r'</?s_t3>', repl="", string=context, flags=re.MULTILINE)
@@ -167,6 +168,8 @@ def parse_index_article_rep(context: str) -> str:
 
     # 원래 있던 index_article_rep 는 제거하기.
     context = remove_tag('s_index_article_rep', context)
+
+    context = context.replace("[##_article_rep_desc_##]", "{{ article_rep.desc|safe }}")
 
     # article_rep_ 변수들 변환
     context = re.sub(pattern=r'\[##_article_rep_([^\]]+)_##\]', repl=r'{{ article_rep.\g<1> }}', string=context,
